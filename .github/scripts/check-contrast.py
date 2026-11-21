@@ -182,10 +182,16 @@ BADGES = [
 # Filled buttons: the label colour differs per theme, so these are declared
 # per theme rather than as shared pairs.
 BUTTONS = {
-    'light': [('--n0', '--green-text', 'white on the green primary button'),
-              ('--n0', '--blue-text', 'white on the blue primary button')],
-    'dark':  [('--n700', '--green', 'dark label on the green primary button'),
-              ('--n700', '--blue', 'dark label on the blue primary button')],
+    'light': [('--button-fg', '--button-bg', 'white on the green primary button'),
+              ('--button-fg', '--button-hover', 'white on the hovered primary button'),
+              ('--hero-fg', '--hero-stop-light', 'hero title on the gradient\'s lightest stop'),
+              ('--hero-muted', '--hero-stop-light', 'hero copy on the gradient\'s lightest stop'),
+              ('--hero-link', '--hero-stop-light', 'hero link on the gradient\'s lightest stop')],
+    'dark':  [('--button-fg', '--button-bg', 'white on the green primary button'),
+              ('--button-fg', '--button-hover', 'white on the hovered primary button'),
+              ('--hero-fg', '--hero-stop-light', 'hero title on the gradient\'s lightest stop'),
+              ('--hero-muted', '--hero-stop-light', 'hero copy on the gradient\'s lightest stop'),
+              ('--hero-link', '--hero-stop-light', 'hero link on the gradient\'s lightest stop')],
 }
 
 
@@ -223,6 +229,10 @@ DERIVED_EXEMPT_BG = {
     '--on-code': 'the code surface is dark in both themes',
     '--on-code-strong': 'the code surface is dark in both themes',
     '--code-bg': 'the code surface is dark in both themes',
+    '--hero-gradient': 'a gradient, not a colour; BUTTONS measures the hero text '
+                       'on its lightest stop, --hero-stop-light',
+    '--hero-wash': 'white at 12% over the hero gradient, never over the page; '
+                   'white on it over the lightest stop measures 9.55:1',
 }
 
 

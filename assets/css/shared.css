@@ -1,36 +1,35 @@
-/* shared.css — the top bar, sidebar, banner and cross-page components.
+/* shared.css — the shell and the cross-page components.
    =========================================================================
-   Shared by index.html and ingress-nginx-migration.html. Single source of
-   truth for the top bar, sidebar, event banner, layout offsets, accessibility
-   helpers, and the components both pages use (buttons, info boxes, code
-   blocks, tags). Edit here, not per-page. Page-specific styles live in
-   index.css / migration.css.
+   Shared by all four pages. Single source of truth for the header, the
+   hero band, the tool pages' section rail, the phone drawer, the footer,
+   the accessibility helpers, and the components every page uses (buttons,
+   alerts, code blocks). Edit here, not per page.
 
    Loading order is load-bearing: tokens.css -> shared.css -> page CSS.
-   Every value below resolves to a token in tokens.css; nothing here writes a
-   literal colour, size, space, radius, shadow or duration. The exceptions are
-   structural — 0, 1px hairlines, and percentage/viewport geometry — which are
-   not design decisions.
 
    ── The visual language ──────────────────────────────────────────────────
-   The top bar and sidebar follow the F5 Distributed Cloud console: a branding block in the
-   navigation column's header row with the page title alongside it, a fixed
-   264px Primary Navigation, flat border-only surfaces, and a green active-item
-   rail. What it deliberately does NOT copy is the console's logged-in
-   furniture — there is no tenant selector, no avatar, no support menu, because
-   this is a public community site with no tenant to select.
-   ========================================================================= */
+   DESIGN PREVIEW in the design language of the nginx.org revamp
+   (nginxinc/nginx-org-revamp). A white header across the page: the NGINX
+   logo on the left, uppercase semibold nav items on the right that take a
+   3px green underline on hover and on the current page, and icon utilities
+   at the end. Black-to-slate gradient hero bands run edge to edge under it.
+   Content sits in an 80rem container. The footer is the light one from
+   nginx-hugo-theme.
+
+   Two deliberate departures from the revamp. The header is sticky, where
+   the revamp's scrolls away, because the migration tool's scroll offsets
+   read the header's height. The tool pages keep a section rail on the
+   left, which the revamp has no equivalent for, because each tool page
+   holds a dozen sections and the reference guide ~340 rows.
+
+   The JavaScript contract is unchanged: #sidebar, #menuToggle, #darkToggle,
+   #mobileBreadcrumb, .topbar and .main keep their ids and classes, and the
+   drawer still opens with .open below 900px (shared.js). */
 
 /* ── Typeface ──────────────────────────────────────────────────────────────
-   The site sets type in Inter, per the F5 Design System, which specifies Inter
-   for all 14 of its non-code styles. Inter is SIL OFL 1.1, so unlike the
-   license-gated marketing faces it can actually be shipped and rendered.
-
-   One variable file carries the whole 100–900 range, which is why a single
-   112 KB request covers every weight the site uses. It is subset to the glyphs
-   this site renders and self-hosted rather than pulled from a CDN, keeping the
-   no-third-party-runtime-dependency rule intact. Provenance, the subset ranges
-   and how to regenerate: assets/fonts/README.md. */
+   Inter, as the revamp's --font-display. Self-hosted and subset; provenance
+   and the subset ranges are in assets/fonts/README.md. The 'Inter Fallback'
+   faces are metric-matched Arial for the swap window. */
 @font-face {
     font-family: 'InterVariable';
     src: url('../fonts/InterVariable-subset.woff2') format('woff2');
@@ -38,30 +37,6 @@
     font-style: normal;
     font-display: swap;
 }
-
-/* Metric-matched stand-in for the swap window. font-display:swap renders text
-   in the fallback until the woff2 lands; without matched metrics that hand-off
-   reflows the page. Arial at the same font-size is ~4.7% narrower than Inter
-   and sits on a different baseline, so these overrides scale and re-seat it to
-   occupy Inter's exact box — the swap then changes letterforms only.
-
-   Values are derived from these specific files, not copied from anywhere:
-   Inter's own hhea metrics, and the average advance width of Inter instanced
-   at each weight against the matching Arial face. Recompute them if the font
-   is ever regenerated — the script is in assets/fonts/README.md.
-
-   Two faces rather than one because a single face with no font-weight
-   descriptor leaves the browser to *synthesise* bold, which smears the
-   stand-in. The 700 face deliberately has no local('Arial') last resort: if
-   Arial Bold is missing we want synthesis from the 400 face, not
-   regular-weight glyphs sitting in the 700 slot. Where Arial is absent
-   entirely (most Linux), neither face resolves and the stack falls through to
-   the families listed after it. 400 and 700 cover the 500 weight too — CSS
-   font matching resolves 500 down to 400 within a family, so it gets a real
-   face rather than a synthesised one.
-
-   Progressive enhancement: browsers without the metric-override descriptors
-   (Safari < 16.4) ignore them and simply get plain Arial during the swap. */
 @font-face {
     font-family: 'Inter Fallback';
     src: local('Arial');
@@ -88,20 +63,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Keyboard focus, scrollIntoView() and fragment jumps land below the fixed top
-   bar instead of under it. This clears the bar once, for every page; a page
-   stylesheet adds only what is its own on top, through scroll-margin-top —
-   migration.css does that for its sticky filter bar. Measured before this
-   existed: shift-tabbing back through the reference tables left 17 of 60 focus
-   stops hidden behind the two bars. */
 html {
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: calc(var(--fixed-top-h) + var(--space-base));
 }
 
-/* F5DS pairs a fixed leading with each size rather than applying one global
-   ratio, so line-height here is a length, not a multiplier — every rule that
-   changes font-size restates the paired line-height rather than inheriting. */
 body {
     font-family: var(--font);
     font-size: var(--fs-body);
@@ -113,12 +79,9 @@ body {
     transition: background var(--dur-reveal) linear, color var(--dur-reveal) linear;
 }
 
-/* One focus idiom sitewide: an outline. Never a box-shadow ring — a ring is
-   invisible against the code surface and gets clipped by overflow containers. */
 :focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
-    border-radius: var(--radius);
 }
 :focus:not(:focus-visible) { outline: none; }
 
@@ -131,19 +94,15 @@ body {
     left: var(--space-2x);
     z-index: 9999;
     padding: var(--space-base) var(--space-2x);
-    background: var(--green-text);
-    color: var(--n0);
-    border-radius: 0 0 var(--radius) var(--radius);
+    background: var(--button-bg);
+    color: var(--button-fg);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
-    font-weight: 500;
+    font-weight: var(--weight-semibold);
     text-decoration: none;
     transition: top var(--dur-colour) linear;
 }
 .skip-link:focus-visible { top: 0; }
-/* Dark lightens --green-text to #00B244, where white measures 2.82:1. The dark
-   label is the one the dark primary buttons already use: 6.19:1. */
-:is(html, body).dark-mode .skip-link { color: var(--n700); }
 
 .sr-only {
     position: absolute;
@@ -155,13 +114,7 @@ body {
     border: 0;
 }
 
-/* Sits just below the fixed top bar: neither hidden behind it nor covering the
-   top-bar links, which work without JavaScript. */
 .noscript-warning {
-    position: fixed;
-    top: var(--fixed-top-h);
-    left: 0; right: 0;
-    z-index: 150;
     padding: var(--space-base) var(--space-2x);
     background: var(--amber-tint);
     color: var(--text);
@@ -172,266 +125,186 @@ body {
 }
 
 
-/* ── Top bar ──────────────────────────────────────────────────────────────
-   The console shape: the branding block occupies the navigation column's
-   header row, with a right border separating it from the page title, and the
-   utility actions sit at the far right. */
-
+/* ── Header ───────────────────────────────────────────────────────────────
+   The revamp's <nav class="w-full px-6 py-4">: the logo, then the nav
+   items pushed right, then the icons. */
 .topbar {
-    position: fixed;
+    position: sticky;
     top: var(--banner-h);
-    left: 0; right: 0;
-    height: var(--topbar-h);
     z-index: 200;
     display: flex;
-    align-items: stretch;
-    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4x);
+    height: var(--topbar-h);
+    padding: 0 max(var(--gutter), calc((100% - var(--container-max)) / 2));
     background: var(--surface);
-    /* Full-width bottom rule, running under the branding block as well. An
-       earlier version started it at --sidebar-w so the brand and sidebar read
-       as one column; the console screenshots show the rule crossing the whole
-       bar, so it is back to a plain border. */
-    border-bottom: 1px solid var(--border);
-    transition: background var(--dur-reveal) linear,
-                border-color var(--dur-reveal) linear,
-                top var(--dur-colour) linear;
+    border-bottom: 1px solid var(--n200);
+    transition: background var(--dur-reveal) linear;
+}
+:is(html, body).dark-mode .topbar { border-bottom-color: var(--border); }
+
+.topbar-left { display: flex; align-items: center; min-width: 0; }
+.topbar-brand { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+.topbar-brand .brand-logo { display: block; height: 40px; width: auto; }
+/* The lockup's fills read custom properties (assets/img/nginx-logo.svg). */
+:is(html, body).dark-mode .topbar-brand .brand-logo {
+    --logo-wordmark: var(--text);
+    --logo-endorse:  var(--text);
+}
+/* The page name is the phone's: on a wide screen the nav marks the page. */
+.topbar-heading { display: none; }
+.topbar-eyebrow { display: none; }
+.mobile-breadcrumb {
+    display: block;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.topbar-left { display: flex; align-items: stretch; min-width: 0; }
+/* .nav-item-desktop: uppercase 18px semibold, a 3px green underline 6px
+   below on hover and on the current page. */
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2x);
+    margin-left: auto;
+    list-style: none;
+}
+.site-nav-link {
+    display: block;
+    font-size: var(--fs-body-lg);
+    line-height: var(--lh-body-lg);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text);
+    text-decoration: none;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+    text-decoration-color: var(--green);
+}
+.site-nav-link:hover, .site-nav-link[aria-current="page"] { text-decoration-line: underline; }
+/* The landing page is one document with several views; the nav marks the
+   one showing, which index.js flags with .active. */
+body:has(#page-home.active) .site-nav-link[data-nav="home"],
+body:has(#page-nginx-ingress-controller.active) .site-nav-link[data-nav="nic"],
+body:has(#page-nginx-gateway-fabric.active) .site-nav-link[data-nav="ngf"] { text-decoration-line: underline; }
+
+/* Icons, as the revamp's search icon: the labels stay for screen readers. */
+.topbar-right { display: flex; align-items: center; gap: var(--space-base); flex-shrink: 0; }
+.topbar-link, .dark-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: var(--text);
+    cursor: pointer;
+    transition: color var(--dur-colour) linear;
+}
+.topbar-link:hover, .dark-toggle:hover { color: var(--green-text); }
+.topbar-link svg, .dark-toggle svg { width: 22px; height: 22px; }
+.topbar-link svg.nginx-glyph { width: 20px; height: 22px; }
+.topbar-link-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.dark-icon-sun { display: none; }
+:is(html, body).dark-mode .dark-icon-moon { display: none; }
+:is(html, body).dark-mode .dark-icon-sun { display: block; }
 
 .menu-toggle {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    /* A WCAG touch target must not absorb layout pressure: it is otherwise a
-       shrinkable flex item and would drop below 44px under crowding. */
+    width: 44px; height: 44px;
     flex-shrink: 0;
     background: none;
     border: 0;
-    border-right: 1px solid var(--border);
     color: var(--text);
     cursor: pointer;
-    transition: background var(--dur-colour) linear;
 }
-.menu-toggle:hover { background: var(--surface-sunken); }
-.menu-toggle svg { width: 20px; height: 20px; }
-
-/* Branding block. The logo sits at the left of the bar and the label follows
-   it, which is the shape the site had before the redesign and the shape
-   production still has — rather than a block pinned to the navigation width
-   with the logo centred inside it. Pinning it was an attempt to make the top
-   band read as one column with the sidebar, but it spends 264px on a 99px
-   logo and pushes the label a third of the way across the bar for no gain.
-
-   The separator is a short centred rule rather than a full-height border, so
-   the bar is not divided into two panes: it marks where the brand ends and
-   the page begins, at the same weight the console uses. */
-.topbar-brand {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--space-base);
-    padding: 0 var(--space-3x) 0 var(--space-2x);
-    text-decoration: none;
-    color: var(--text);
-    flex-shrink: 0;
-}
-.topbar-brand::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: var(--space-4x);
-    background: var(--border);
-}
-.topbar-brand:focus-visible { outline-offset: -2px; }
-.topbar-brand svg { flex-shrink: 0; }
-/* nginx.org "NGINX, sponsored by F5" lockup. ONE file for both themes, pulled
-   in with <use href="…nginx-logo.svg#logo">: custom properties cascade into an
-   external <use> shadow tree, so the theme is four declarations here rather
-   than a second copy of the artwork. It used to ship as a light/dark pair
-   because an SVG in an <img> is a separate document the page CSS cannot reach —
-   and both files downloaded on every load, since `display: none` does not
-   cancel an <img> fetch.
-
-   Light mode sets nothing: the artwork's fills are var(--logo-*, <official
-   hex>) and the fallbacks ARE the light lockup, so the master's colours are
-   the default rather than something restated here.
-
-   The knockout N is painted over the hexagon rather than punched through it, so
-   reversing it means filling the N with the bar's own background. That couples
-   the lockup to --surface — correct on the top bar, wrong anywhere else. */
-.topbar-brand .brand-logo { height: 28px; width: auto; display: block; flex-shrink: 0; }
-:is(html, body).dark-mode .topbar-brand .brand-logo {
-    --logo-wordmark: var(--n0);
-    --logo-endorse:  var(--n0);
-    --logo-hex:      var(--n0);
-    --logo-n:        var(--surface);
-}
-/* ── Page heading ─────────────────────────────────────────────────────────
-   One line, sitting to the right of the brand's divider. Which line it is
-   depends on the width — the site label above 900px, the page title at or
-   below it, where the drawer hides the sidebar's active-item marker. Both
-   rules are below; the ≤900px block swaps them.
-
-   The label is deliberately OUTSIDE the branding block. An earlier version put
-   it inside a 264px block beside the logo, where 99px of logo left too little
-   for a label like "Networking for Kubernetes" and it truncated. */
-.topbar-heading {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0 var(--space-3x);
-    /* The heading is the only item in the bar that gives way — the brand, the
-       menu toggle and `.topbar-right` are all pinned. `min-width: 0` lets it
-       go below its content width, which means that under enough crowding it
-       collapses to nothing rather than ellipsising. That is why the narrow
-       breakpoint below buys it room by dropping the "Contribute" label
-       instead of relying on the ellipsis. */
-    flex: 1 1 auto;
-    min-width: 0;
-}
-/* The site label is the whole heading on a wide screen: one line beside the
-   logo, which is the shape the bar had before the redesign. H3 at the muted
-   text colour — `--n550` measures 4.91:1 on the N0 bar, and 18px counts as
-   normal text, so it clears the 4.5:1 bar rather than the large-text 3:1 one.
-   The stacked eyebrow-over-title arrangement is gone; the page title is now
-   mobile-only, below. */
-.topbar-eyebrow {
-    font-size: var(--fs-h3);
-    line-height: var(--lh-h3);
-    font-weight: 400;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* The page title. This element already existed as a mobile-only breadcrumb,
-   and index.js already keeps its text in step with the active view — it is now
-   shown at every width, because a page title sitting in the top band is the
-   console's clearest structural signature. H3 Regular is what F5DS assigns to a
-   page title; H1/H2 are reserved for content-area headings. Its class name is
-   now misleading; renaming it means touching index.js and migration-core.js. */
-.mobile-breadcrumb {
-    /* Mobile-only again, as the class name says. On a wide screen the sidebar
-       already marks the active page, so the bar carries the site label instead;
-       once the navigation collapses to a drawer that marker is hidden and the
-       page title becomes the useful line. The ≤900px block swaps the two. */
-    display: none;
-    font-size: var(--fs-h3);
-    line-height: var(--lh-h3);
-    font-weight: 400;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-small);
-    padding: 0 var(--space-3x);
-    flex-shrink: 0;
-}
-
-.topbar-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-base);
-    min-height: 32px;
-    padding: 0 var(--space-2x);
-    border-radius: var(--radius);
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    transition: background var(--dur-colour) linear, color var(--dur-colour) linear;
-}
-.topbar-link:hover { background: var(--surface-sunken); color: var(--text); }
-.topbar-link svg { width: 16px; height: 16px; flex-shrink: 0; }
-.topbar-link svg.nginx-glyph { width: 14px; height: 16px; }
-
-.dark-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px; height: 32px;
-    padding: 0;
-    background: none;
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    color: var(--text-secondary);
-    font-family: var(--font);
-    cursor: pointer;
-    transition: background var(--dur-colour) linear, color var(--dur-colour) linear;
-}
-.dark-toggle:hover { background: var(--surface-sunken); color: var(--text); }
-.dark-toggle svg { width: 16px; height: 16px; }
-/* Moon by default (light mode), sun when dark. */
-.dark-icon-sun { display: none; }
-:is(html, body).dark-mode .dark-icon-moon { display: none; }
-:is(html, body).dark-mode .dark-icon-sun { display: block; }
+.menu-toggle svg { width: 28px; height: 28px; }
 
 
 /* ── Event banner ─────────────────────────────────────────────────────────
-   Shown only for a conference: KubeCon EU 2026-03/04, and KubeCon North
-   America (Salt Lake City, 9-12 November 2026, booth 100). To show it, add the
-   <p class="event-banner" id="eventBanner"> after #page-announce and
-   class="has-banner" on <body>, on every page; to retire it, remove both. The
-   classes stay on check-classes.py's DORMANT list for the weeks in between. */
+   The revamp's banner.html: a dark strip above the header. Shown only for
+   a conference (see production). */
 .event-banner {
-    position: fixed;
-    top: 0; left: 0; right: 0;
+    position: sticky;
+    top: 0;
     z-index: 300;
-    padding: var(--space-base) var(--space-2x);
-    background: var(--green-text);
-    color: var(--n0);
+    padding: var(--space-base) var(--gutter);
+    background: var(--project-band);
+    color: var(--hero-fg);
     text-align: center;
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    font-weight: 500;
+    font-size: var(--fs-caption);
+    line-height: var(--lh-caption);
 }
-.event-banner strong { font-weight: 700; }
-.event-banner .banner-highlight { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.event-banner a { color: var(--n0); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.event-banner a:hover { text-decoration-thickness: 2px; }
-/* Dark --green-text is #00B244, and white on it is 2.82:1: the dark-theme
-   pairing of the filled green buttons instead (--n700 on --green, 6.19:1). */
-:is(html, body).dark-mode .event-banner { background: var(--green); color: var(--n700); }
-:is(html, body).dark-mode .event-banner a { color: var(--n700); }
-/* Showing the banner overrides --banner-h so every offset that depends on it
-   recomputes. It is the banner's own height — its lines of --lh-body plus
-   its padding — so the top bar sits just below it. The fixed 36px/48px this
-   replaced fit one line and less than two, and a two-line banner slid 4px
-   under the top bar on phones. The KubeCon copy wraps below 710px and
-   400px; re-measure the breakpoints whenever the copy changes.
-   Set on the root, not on body: a custom property holding var() resolves where
-   it is declared, so --fixed-top-h, and html's scroll-padding, see this value
-   only if it is the root's. Set on body, the sidebar and content started under
-   the top bar and in-page jumps landed behind the banner. */
-:root:has(body.has-banner) { --banner-h: calc(var(--lh-body) + 2 * var(--space-base)); }
-@media (max-width: 720px) {
-    :root:has(body.has-banner) { --banner-h: calc(2 * var(--lh-body) + 2 * var(--space-base)); }
-}
-@media (max-width: 400px) {
-    :root:has(body.has-banner) { --banner-h: calc(3 * var(--lh-body) + 2 * var(--space-base)); }
-}
+.event-banner a { color: var(--hero-link); font-weight: var(--weight-semibold); }
 
 
-/* ── Layout ───────────────────────────────────────────────────────────────── */
-
-.layout {
+/* ── Hero band ────────────────────────────────────────────────────────────
+   hero.html's .hero-gradient: black to slate, the title white, uppercase
+   and bold, the description gray-200 at 18px. 200px on an inner page; the
+   landing page's own is 450px (index.css). The tool pages' band carries
+   the tool's name; the landing page's sits in each view. */
+.tool-hero, .page-hero {
+    background: var(--hero-gradient);
+    color: var(--hero-muted);
+}
+.tool-hero-inner, .page-hero-content {
     display: flex;
-    margin-top: var(--fixed-top-h);
-    min-height: calc(100vh - var(--fixed-top-h));
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2x);
+    min-height: 200px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: var(--space-5x) var(--gutter);
 }
+.tool-hero-eyebrow {
+    font-size: var(--fs-caption);
+    line-height: var(--lh-caption);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    color: var(--hero-link);
+}
+.tool-hero-title, .page-hero h1 {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--hero-fg);
+}
+.tool-hero-desc, .page-hero p {
+    max-width: 52rem;
+    font-size: var(--fs-body-lg);
+    line-height: var(--lh-body-lg);
+    color: var(--hero-muted);
+}
+
+
+/* ── Layout ───────────────────────────────────────────────────────────────
+   Tool pages: the section rail and the content, side by side in the
+   container. The landing page runs edge to edge, so its bands can, and
+   its sections take the container themselves (index.css). */
+.layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    column-gap: var(--space-6x);
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: var(--space-6x) var(--gutter) 0;
+}
+.layout > .sidebar { grid-column: 1; grid-row: 1; }
+.layout > .main { grid-column: 2; grid-row: 1; min-width: 0; }
+.layout:has(.product-page) { display: block; max-width: none; padding: 0; }
+.layout:has(.product-page) > .sidebar { display: none; }
 
 .sidebar-backdrop {
     display: none;
@@ -445,219 +318,168 @@ body {
 .sidebar-backdrop.visible { display: block; opacity: 1; }
 
 
-/* ── Primary navigation ───────────────────────────────────────────────────
-   F5DS fixes this at 264px, full height, with nav groups carrying a group
-   title and an active indicator. The selected-item highlight is the one place
-   F5DS specifies --radius-small. */
+/* The header's nav, repeated at the top of the phone drawer, where the
+   revamp's mobile menu lists it. */
+.drawer-site-nav { display: none; }
+.drawer-site-link { text-transform: uppercase; }
 
+/* ── The section rail ─────────────────────────────────────────────────────
+   Styled as the revamp's mobile nav list: semibold rows, the current one
+   underlined in green the way the header marks its page. */
 .sidebar {
-    position: fixed;
-    top: var(--fixed-top-h);
-    bottom: 0; left: 0;
-    width: var(--sidebar-w);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
+    position: sticky;
+    top: calc(var(--fixed-top-h) + var(--space-3x));
+    align-self: start;
+    max-height: calc(100vh - var(--fixed-top-h) - var(--space-6x));
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: var(--space-2x) 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    transition: background var(--dur-reveal) linear,
-                border-color var(--dur-reveal) linear,
-                transform var(--dur-move) var(--ease-exit),
-                top var(--dur-colour) linear;
+    background: var(--bg);
 }
 
-.sidebar-section { padding: 0 var(--space-base); margin-bottom: var(--space-3x); }
-
-/* F5DS nav group title: Body Medium 16px, sitting above its items. */
+.sidebar-section + .sidebar-section { margin-top: var(--space-3x); }
 .sidebar-label {
-    font-family: var(--font-display);
+    padding-bottom: var(--space-base);
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
-    font-weight: 700;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
     color: var(--text-secondary);
-    padding: 0 var(--space-base) var(--space-base);
 }
-
 .sidebar-nav { list-style: none; }
-.sidebar-nav li { margin: 0; }
 
 .sidebar-link {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--space-base);
+    display: block;
     width: 100%;
-    padding: var(--space-base) var(--space-base) var(--space-base) var(--space-2x);
-    border: none;
-    border-radius: var(--radius);
+    padding: var(--space-base) 0;
     background: none;
+    border: 0;
     color: var(--text);
     font-family: var(--font);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
-    font-weight: 400;
+    font-weight: var(--weight-semibold);
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    transition: background var(--dur-colour) linear, color var(--dur-colour) linear;
-}
-.sidebar-link:hover { background: var(--surface-sunken); color: var(--text); }
-.sidebar-link:focus-visible { outline-offset: -2px; }
-
-/* Active item. The console marks the current page in green on NGINX-branded
-   surfaces — the same signal as its primary button — with a rail on the left.
-   The .dot spans stay in the markup purely as per-product colour metadata,
-   read via :has() in the page CSS to tint that rail. */
-.sidebar-link.active {
-    background: var(--surface-sunken);
-    color: var(--green-text);
-    font-weight: 500;
 }
 .sidebar-link .dot { display: none; }
-.sidebar-link::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: var(--space-small);
-    bottom: var(--space-small);
-    width: 3px;
-    border-radius: var(--radius-small);
-    background: transparent;
-    transition: background var(--dur-colour) linear;
-}
-.sidebar-link.active::before { background: var(--green); }
-
-.sidebar-link-text { display: flex; flex-direction: column; min-width: 0; }
+.sidebar-link-text { display: block; }
 .sidebar-link-name {
     font-size: var(--fs-body);
     line-height: var(--lh-body);
-    /* Medium, so the project name reads as the title of its row and the version
-       line below it as metadata. Matches what main used on the active item, but
-       applied to every row rather than only the active one — the hierarchy is
-       between name and description, not between selected and unselected. */
-    font-weight: 500;
-    color: inherit;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+    text-decoration-color: var(--green);
 }
+.sidebar-link:hover .sidebar-link-name,
+.sidebar-link.active .sidebar-link-name { text-decoration-line: underline; }
 .sidebar-link-desc {
+    display: block;
+    margin-top: var(--space-small);
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
     font-weight: 400;
     color: var(--text-secondary);
 }
-/* Both lines wrap rather than ellipsise. Every label is still chosen to fit
-   the rail on one line at the default size — that is why "Config analyzer" is
-   shorter than its heading — so nothing wraps at 100%. Under text-only zoom
-   the rail stays 264px while the text doubles, and an ellipsis cut 10 labels
-   on the migration tool and 6 on the landing page at 200%; wrapping keeps
-   every word. */
 .sidebar-link-name, .sidebar-link-desc { overflow-wrap: anywhere; }
 
-.sidebar-divider { height: 1px; background: var(--border); margin: var(--space-3x) var(--space-2x); }
-
-.sidebar-ext-links { padding: 0 var(--space-base); }
+.sidebar-divider { height: 1px; margin: var(--space-3x) 0; background: var(--border); }
+.sidebar-ext-links { display: flex; flex-direction: column; padding-bottom: var(--space-3x); }
 .sidebar-ext {
     display: flex;
     align-items: center;
     gap: var(--space-base);
-    padding: var(--space-base);
-    border-radius: var(--radius);
-    font-size: var(--fs-caption);
-    line-height: var(--lh-caption);
-    text-decoration: none;
-    transition: background var(--dur-colour) linear, color var(--dur-colour) linear;
-}
-.sidebar-ext:link, .sidebar-ext:visited { color: var(--text); }
-.sidebar-ext:hover { background: var(--surface-sunken); }
-.sidebar-ext:focus-visible { outline-offset: -2px; }
-.sidebar-ext svg { flex-shrink: 0; color: var(--icon); }
-
-.sidebar-copyright {
-    /* 8px side padding rather than 16, so the trademark line fits on one line.
-       Measured: the string needs 244px at 12px and 16px padding left only 231,
-       so "Inc." was orphaning onto a second line. 8px gives 247. The whole
-       block moves with it rather than the trademark line alone, which keeps the
-       three footer lines aligned to each other. */
-    padding: var(--space-2x) var(--space-base) var(--space-base);
-    margin-top: auto;
+    padding: var(--space-small) 0;
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
     color: var(--text-secondary);
+    text-decoration: none;
 }
-.sidebar-trademark { margin-top: var(--space-base); }
-.sidebar-tagline { margin-top: var(--space-base); font-style: italic; }
+.sidebar-ext:hover { color: var(--text); text-decoration: underline; text-underline-offset: 4px; }
+.sidebar-ext svg { flex-shrink: 0; }
 
 
 /* ── Main content ─────────────────────────────────────────────────────────── */
 
-.main { flex: 1; margin-left: var(--sidebar-w); min-width: 0; padding: 0; }
+.main { min-width: 0; padding-bottom: var(--space-8x); }
 
 
-/* ═══ Cross-page components ═══════════════════════════════════════════════
-   Both pages need these, so they live here rather than being duplicated into
-   index.css and migration.css. */
+/* ── Footer ───────────────────────────────────────────────────────────────
+   nginx-hugo-theme's footer-v2: light, the trademark on the left, the
+   legal links on the right, 14px in the secondary grey. */
+.site-footer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+.site-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-base) var(--space-3x);
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: var(--space-4x) var(--gutter);
+    font-size: var(--fs-caption);
+    line-height: var(--lh-caption);
+}
+.site-footer-trademark { margin-right: auto; }
+.site-footer-links { display: flex; flex-wrap: wrap; gap: var(--space-base) var(--space-3x); }
+.site-footer-links a { color: inherit; text-decoration: none; }
+.site-footer-links a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 4px; }
+
+
+/* ═══ Cross-page components ═══════════════════════════════════════════════ */
 
 /* ── Buttons ──────────────────────────────────────────────────────────────
-   F5DS: sizes S-32 (default), M-40, XS-24; 20px between buttons in a group;
-   never truncates; always elevation L0, because a button carries its own
-   affordance.
-
-   The site carries two button vocabularies — .cta/.cta-primary/.cta-secondary
-   on the landing page and .btn/.btn-primary/.btn-secondary on the migration
-   tool. They are given identical geometry here rather than consolidated,
-   because merging them means editing markup in two pages for no visual gain.
-   Compose new work onto .btn. */
+   .ngx-button: the dark green, 2px corners, semibold white. #017E31 in
+   both themes: the dark theme's light green carries text, and white on it
+   would fail. Secondary actions are the revamp's white card with a border. */
 .btn, .cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-base);
-    min-height: 32px;
-    padding: 0 var(--space-2hx);
+    min-height: 40px;
+    padding: var(--space-base) var(--space-3x);
     border: 1px solid transparent;
-    border-radius: var(--radius);
+    border-radius: var(--radius-small);
     font-family: var(--font);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
-    font-weight: 400;
-    white-space: nowrap;
+    font-weight: var(--weight-semibold);
+    text-align: center;
     text-decoration: none;
     cursor: pointer;
-    box-shadow: var(--elev-0);
     transition: background var(--dur-colour) linear,
                 border-color var(--dur-colour) linear,
                 color var(--dur-colour) linear;
 }
-.cta { min-height: 40px; padding: 0 var(--space-3x); }
 .btn svg, .cta svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-/* NGINX green leads, matching the console's NGINX-branded surfaces.
-   --green-text rather than --green as the fill: white on #009639 is 3.87:1 and
-   fails AA, white on #007D30 is 5.28:1. */
 .btn-primary, .btn-primary:visited,
 .cta-primary, .cta-primary:visited {
-    background: var(--green-text);
-    border-color: var(--green-text);
-    color: var(--n0);
+    background: var(--button-bg);
+    border-color: var(--button-bg);
+    color: var(--button-fg);
 }
 .btn-primary:hover, .cta-primary:hover {
-    background: var(--green-deep);
-    border-color: var(--green-deep);
-    color: var(--n0);
+    background: var(--button-hover);
+    border-color: var(--button-hover);
+    color: var(--button-fg);
 }
 
 .btn-secondary, .btn-secondary:visited,
 .cta-secondary, .cta-secondary:visited {
     background: var(--surface);
-    border-color: var(--border-control);
+    border-color: var(--border);
     color: var(--text);
 }
-.btn-secondary:hover, .cta-secondary:hover {
-    background: var(--surface-sunken);
-    color: var(--text);
-}
+.btn-secondary:hover, .cta-secondary:hover { background: var(--n200); color: var(--text); }
+:is(html, body).dark-mode .btn-secondary:hover,
+:is(html, body).dark-mode .cta-secondary:hover { background: var(--border); }
 
 .btn[disabled] {
     background: var(--surface-sunken);
@@ -667,37 +489,18 @@ body {
     pointer-events: none;
 }
 
-/* F5DS's group gap is 20px, not 16px. */
 .cta-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2hx);
-}
-
-:is(html, body).dark-mode .btn-primary,
-:is(html, body).dark-mode .cta-primary {
-    background: var(--green);
-    border-color: var(--green);
-    color: var(--n700);
-}
-:is(html, body).dark-mode .btn-primary:hover,
-:is(html, body).dark-mode .cta-primary:hover {
-    background: var(--green-deep);
-    border-color: var(--green-deep);
-    color: var(--n700);
+    gap: var(--space-2x);
 }
 
 
-/* ── Info box ─────────────────────────────────────────────────────────────
-   F5DS binds each sentiment to a fixed icon and states that body text stays
-   N600 in all four — sentiment is carried by icon, border and background only,
-   never by text colour, so it survives being read in greyscale. Previously
-   each variant also recoloured its text.
-
-   The icon comes from a mask so one declaration tints it with the variant's
-   own colour, and so the site keeps its no-third-party-request rule: no icon
-   font, no sprite fetch. Geometry traced from F5DS's own 16px icon grid. */
+/* ── Alerts ───────────────────────────────────────────────────────────────
+   The revamp's .alert: a 4px left border in the alert's colour, no fill,
+   and its title (the first <strong>) in the colour, using the AA text
+   values. Each kind keeps its icon, so colour is never the only signal. */
 :root {
     --icon-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5A5.5 5.5 0 118 13.5 5.5 5.5 0 018 2.5zM7.25 6.75h1.5v4.5h-1.5v-4.5zM8 4.2a.95.95 0 110 1.9.95.95 0 010-1.9z'/%3E%3C/svg%3E");
     --icon-success: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5A5.5 5.5 0 118 13.5 5.5 5.5 0 018 2.5zm3.03 3.4l-3.9 3.9-1.9-1.9-1.06 1.06 2.96 2.96 4.96-4.96L11.03 5.9z'/%3E%3C/svg%3E");
@@ -705,30 +508,22 @@ body {
     --icon-warning: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 .9L.6 14.2h14.8L8 .9zm0 3.1l5 9H3l5-9zm-.75 3.2h1.5v3.2h-1.5V7.2zm.75 4.1a.9.9 0 110 1.8.9.9 0 010-1.8z'/%3E%3C/svg%3E");
     --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3 8.5l3.5 3.5 7-7.5'/%3E%3C/svg%3E");
 
-    /* The hexagon lattice, carried over from the pre-F5DS design. A 43.3x75
-       tile: one pointy-top hexagon with a stem hanging below it, so tiled it
-       reads as a linked lattice rather than loose cells. Used by the landing
-       hero only (index.css), but it lives here because this block is the one
-       home for the site's inline SVG assets, which is what keeps them
-       auditable. The stroke is white and the tile is hue-agnostic — it sits
-       over whichever tint its section already has. `%23fff` is percent-encoded,
-       so check-tokens.py's hex scan does not see it, same as --icon-check. */
+    /* The NGINX hexagon with its N knocked out, the favicon's artwork, for
+       the project cards' dark band. */
+    --nginx-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 53 60'%3E%3Cg transform='translate(-7.198 -0.359)'%3E%3Cpath fill='%23009639' d='M7.606,45.181a3.019,3.019,0,0,0,1.134,1.126L31.942,59.702a3.044,3.044,0,0,0,3.084,0L58.229,46.306a3.043,3.043,0,0,0,1.541-2.67V16.846a3.044,3.044,0,0,0-1.542-2.67L35.025,0.779a3.04,3.04,0,0,0-3.082,0L8.741,14.175a3.042,3.042,0,0,0-1.543,2.67V43.637a3.025,3.025,0,0,0,.407,1.544'/%3E%3Cpath fill='%23fff' d='M26.055,40.439a2.984,2.984,0,0,1-5.968,0l.003-20.483a3.111,3.111,0,0,1,3.388-2.899,5.306,5.306,0,0,1,4.067,1.819l.902,1.079L40.914,34.874V20.041a2.984,2.984,0,1,1,5.968,0l-.004,20.481a3.111,3.111,0,0,1-3.388,2.899,5.303,5.303,0,0,1-4.067-1.819L26.054,25.606V40.44Z'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* The lattice, reused from production as the landing hero's graphic,
+       where the revamp has its hero-graphic.webp. */
     --pattern-hex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='43.3' height='75'%3E%3Cpath d='M0 12.5L21.65 0L43.3 12.5L43.3 37.5L21.65 50L0 37.5Z M21.65 50L21.65 75' fill='none' stroke='%23fff' stroke-width='2.4'/%3E%3C/svg%3E");
 }
 
 .info-box {
-    /* The text inset is the icon's own geometry — its 16px offset, its 1rem
-       box, an 8px gap — rather than a flat 40px. At the default size the two
-       are identical; under text-only zoom the icon grows with the rem and a
-       fixed inset let it run into the first word (measured at 200%: the icon
-       ended at 48px, the text started at 40px). */
     --info-box-inset: calc(var(--space-2x) + 1rem + var(--space-base));
     position: relative;
-    padding: var(--space-2x) var(--space-2x) var(--space-2x) var(--info-box-inset);
     margin: var(--space-2x) 0;
-    border-radius: var(--radius);
+    padding: var(--space-small) 0 var(--space-small) var(--info-box-inset);
     border-left: 4px solid var(--border-control);
-    background: var(--surface-sunken);
+    background: none;
     color: var(--text);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
@@ -737,60 +532,27 @@ body {
     content: '';
     position: absolute;
     left: var(--space-2x);
-    /* Optically centred on the first line of body text: (leading - icon
-       height) / 2, both from the scale rather than a magic number. */
-    top: calc(var(--space-2x) + (var(--lh-body) - 1rem) / 2);
+    top: calc(var(--space-small) + (var(--lh-body) - 1rem) / 2);
     width: 1rem; height: 1rem;
+    background: var(--icon-colour, var(--icon));
     -webkit-mask: var(--icon-mask) center / contain no-repeat;
     mask: var(--icon-mask) center / contain no-repeat;
 }
 .info-box p + p { margin-top: var(--space-base); }
 .info-box strong { font-weight: 700; }
+.info-box > strong:first-child { color: var(--icon-colour, var(--text)); }
 
-.info-box.note {
-    background: var(--purple-tint);
-    border-left-color: var(--purple);
-    --icon-mask: var(--icon-info);
-}
-.info-box.note::before { background: var(--purple); }
-
-.info-box.tip, .info-box.tip-green {
-    background: var(--emerald-tint);
-    border-left-color: var(--emerald);
-    --icon-mask: var(--icon-success);
-}
-.info-box.tip::before, .info-box.tip-green::before { background: var(--emerald); }
-
-.info-box.warning {
-    background: var(--amber-tint);
-    border-left-color: var(--amber);
-    --icon-mask: var(--icon-warning);
-}
-.info-box.warning::before { background: var(--amber); }
-
-/* F5DS Negative: the `alert` diamond. Something did not happen (a resource
-   the source controller refused is not migrated), where a warning is
-   something that happened differently. */
-.info-box.error {
-    background: var(--pomegranate-tint);
-    border-left-color: var(--pomegranate);
-    --icon-mask: var(--icon-alert);
-}
-.info-box.error::before { background: var(--pomegranate); }
+.info-box.note { border-left-color: var(--purple); --icon-mask: var(--icon-info); --icon-colour: var(--purple-text); }
+.info-box.tip, .info-box.tip-green { border-left-color: var(--green); --icon-mask: var(--icon-success); --icon-colour: var(--green-text); }
+.info-box.warning { border-left-color: var(--amber); --icon-mask: var(--icon-warning); --icon-colour: var(--amber-text); }
+.info-box.error { border-left-color: var(--pomegranate); --icon-mask: var(--icon-alert); --icon-colour: var(--pomegranate-text); }
 
 
 /* ── Code block ───────────────────────────────────────────────────────────
-   The code surface stays dark in both themes, tinted with N700 rather than
-   black so it sits in the same colour world as the rest of the site. */
+   Dark in both themes, as production's. */
 code {
     font-family: var(--mono);
     font-size: 0.9em;   /* relative to its context, not a scale step */
-    /* A long dotted name has no space to break at: at 320px
-       `controller.globalConfiguration.create` in the HAProxy phased-migration
-       list ran 26px past the screen and widened the whole page. `anywhere`
-       breaks a name only when it would otherwise overflow, so short ones stay
-       whole. Code blocks are white-space: pre and never wrap; the mapping
-       table already did this for its own cells (migration.css). */
     overflow-wrap: anywhere;
 }
 
@@ -799,7 +561,7 @@ code {
     padding: var(--space-2hx);
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-small);
     overflow-x: auto;
     color-scheme: dark;
 }
@@ -814,39 +576,22 @@ code {
     border: 0;
     padding: 0;
 }
-/* Same code palette as the YAML highlighter — see the exemption in tokens.css.
-   These previously used status hues, which meant --amber and --emerald were
-   being rendered as text, against this site's own rule. */
 .code-block .cmd     { color: var(--code-keyword); }
 .code-block .flag    { color: var(--code-key); }
 .code-block .comment { color: var(--code-comment); }
 .code-block .str     { color: var(--code-string); }
 
-/* Geometry for all three copy buttons: the landing page's .copy-btn and the
-   two the migration tool builds at runtime. It lived in migration.css, so the
-   landing page's buttons rendered with the browser's own font, outset border
-   and square corners at 35x19 from the F5DS restyle onwards. 24px is the
-   WCAG 2.2 minimum target; at 20px the comparison button missed it. */
 .copy-btn, .comparison-copy-btn, .analyzer-copy-btn {
     min-height: 24px;
     padding: 0 var(--space-base);
     border: 1px solid;
-    border-radius: var(--radius);
+    border-radius: var(--radius-small);
     font-family: var(--font);
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
     cursor: pointer;
     transition: background var(--dur-colour) linear, color var(--dur-colour) linear;
 }
-/* The in-code buttons (.copy-btn here, .analyzer-copy-btn in migration.css)
-   sit in a band of their own at the top of the code: 8px above, 24px of
-   button, 8px below, which is --space-5x of top padding. Before, the code
-   started 20px down and the button covered whatever ran under it. Code never
-   wraps (white-space: pre), so a long first line ran straight under the
-   button: a one-line comment in a Traefik ConfigMap panel, the long install
-   command in the ingress-nginx Advanced sample. A float does not help for
-   the same reason, since an unwrapped line runs past it. The analyzer's own
-   padding-top is in migration.css, which loads after this file. */
 .code-block:has(> .copy-btn) { padding-top: var(--space-5x); }
 .copy-btn, .analyzer-copy-btn {
     position: absolute;
@@ -857,103 +602,104 @@ code {
     z-index: 2;
     background: var(--on-code);
     border-color: var(--on-code-strong);
-    color: var(--n300);
+    color: var(--code-fg);
 }
 .copy-btn:hover { background: var(--on-code-strong); color: var(--n0); }
 
-/* One success state for all three, and it holds under the pointer — which is
-   where the pointer is right after the click. The :hover forms outrank each
-   button's own hover rule whichever stylesheet that sits in. The landing
-   page's previous version was an emerald tint under N700 text, which in dark
-   mode composites onto the code surface at 1.32:1. */
 .copy-btn.copied, .comparison-copy-btn.copied, .analyzer-copy-btn.copied,
 .copy-btn.copied:hover, .comparison-copy-btn.copied:hover, .analyzer-copy-btn.copied:hover {
-    background: var(--green-text);
-    border-color: var(--green-text);
-    color: var(--n0);
+    background: var(--button-bg);
+    border-color: var(--button-bg);
+    color: var(--button-fg);
 }
-:is(html, body).dark-mode .copy-btn.copied,
-:is(html, body).dark-mode .comparison-copy-btn.copied,
-:is(html, body).dark-mode .analyzer-copy-btn.copied { color: var(--n700); }
 
 
 /* ── Status dot ───────────────────────────────────────────────────────────
-   NEVER rendered without its text label. Emerald and Amber measure 2.02:1 and
-   1.60:1 on white and cannot reach the 3:1 non-text bar at any usable
-   saturation — even F5DS's own hover values only reach 2.95:1 and 2.23:1 — so
-   the hue is redundant reinforcement and the label carries the meaning. That
-   is F5DS's own rule (colour is never the only signal), not a workaround. See
-   .github/scripts/check-contrast.py for the measurements. */
+   Never rendered without its text label. */
 .status-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
     background: var(--n400);
 }
-/* The analyzer's input status is the only status dot either page renders, and
-   it styles its own .active/.inactive pair in migration.css. The four
-   sentiment variants that sat here matched nothing in either page or script. */
 
 
-/* ── Responsive: navigation collapses ─────────────────────────────────────
-   F5DS publishes no breakpoints, so 900px and 600px are local conventions. */
+/* ── The header runs out of room before the drawer takes over ─────────────
+   Six uppercase items at 18px need ~1120px with the logo and icons. */
+@media (max-width: 1240px) {
+    .site-nav { gap: var(--space-base) var(--space-2x); }
+    .site-nav-link { font-size: var(--fs-caption); line-height: var(--lh-caption); }
+}
 
+
+/* ── Phone: the nav becomes a drawer from the right ───────────────────────
+   900px is the breakpoint shared.js watches. The revamp puts its hamburger
+   on the right, so the drawer comes in from that side. */
 @media (max-width: 900px) {
-    /* visibility keeps the closed off-canvas drawer out of the tab order and
-       the accessibility tree — translateX alone leaves ~19 invisible tab stops. */
-    .sidebar {
-        transform: translateX(-100%);
+    .topbar { gap: var(--space-base); padding: 0 var(--space-small) 0 var(--gutter); }
+    .topbar-left { display: contents; }
+    .topbar-brand { order: 1; }
+    .topbar-brand .brand-logo { height: 32px; }
+    .topbar-heading { order: 2; display: block; flex: 1 1 auto; min-width: 0; padding-left: var(--space-base); }
+    .topbar-right { order: 3; gap: 0; }
+    .menu-toggle { order: 4; display: flex; }
+    .site-nav { display: none; }
+    .topbar-link.hide-mobile { display: none; }
+
+    .tool-hero-inner, .page-hero-content { min-height: 0; padding: var(--space-4x) var(--gutter); }
+    .tool-hero-title, .page-hero h1 { font-size: var(--fs-h3); line-height: var(--lh-h3); }
+    .tool-hero-desc, .page-hero p { font-size: var(--fs-body); line-height: var(--lh-body); }
+
+    .layout { display: block; padding: var(--space-4x) var(--gutter) 0; }
+    .layout:has(.product-page) { padding: 0; }
+    .sidebar,
+    .layout:has(.product-page) > .sidebar {
+        display: block;
+        position: fixed;
+        top: var(--fixed-top-h);
+        right: 0;
+        bottom: 0;
+        width: 320px;
+        max-width: 85vw;
+        max-height: none;
+        align-self: stretch;
+        z-index: 100;
+        padding: var(--space-2x) var(--gutter);
+        background: var(--surface);
+        border-left: 1px solid var(--border);
+        box-shadow: var(--elev-1);
+        transform: translateX(100%);
         visibility: hidden;
-        box-shadow: none;
         transition: background var(--dur-reveal) linear,
-                    border-color var(--dur-reveal) linear,
                     transform var(--dur-move) var(--ease-exit),
-                    visibility 0s linear var(--dur-move),
-                    top var(--dur-colour) linear;
+                    visibility 0s linear var(--dur-move);
     }
-    .sidebar.open {
+    .sidebar.open,
+    .layout:has(.product-page) > .sidebar.open {
         transform: translateX(0);
         visibility: visible;
-        box-shadow: var(--elev-2);
         transition: background var(--dur-reveal) linear,
-                    border-color var(--dur-reveal) linear,
                     transform var(--dur-move) var(--ease-enter),
                     visibility 0s;
     }
-    .main { margin-left: 0; }
-    .menu-toggle { display: flex; }
-    /* The brand already hugs the left at every width, so nothing about the
-       block changes here — only the room around the heading tightens. */
-    .topbar-heading { padding: 0 var(--space-2x); }
-    /* Swap the two lines: the site label goes, the page title arrives. */
-    .topbar-eyebrow { display: none; }
-    .mobile-breadcrumb { display: block; font-size: var(--fs-body); line-height: var(--lh-body); }
-    .topbar-right { padding: 0 var(--space-2x); }
+    .drawer-site-nav {
+        display: block;
+        margin-bottom: var(--space-3x);
+        padding-bottom: var(--space-2x);
+        border-bottom: 1px solid var(--border);
+    }
+    .drawer-site-link { font-size: var(--fs-body-lg); line-height: var(--lh-body-lg); }
+    .drawer-site-link[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; text-decoration-color: var(--green); }
+    /* The revamp's mobile nav: rows with dividers between them. */
+    .sidebar-nav > li + li { border-top: 1px solid var(--border); }
+    .site-footer-inner { padding: var(--space-3x) var(--gutter); }
 
-    /* WCAG target size beats F5DS's fixed 32px on touch. */
-    .btn, .cta, .topbar-link, .dark-toggle { min-height: 44px; }
-}
-
-@media (max-width: 600px) {
-    .topbar-brand { padding: 0 var(--space-2x) 0 var(--space-base); }
-    .topbar-link.hide-mobile { display: none; }
-    /* The page title stays on a phone. Once the navigation is a closed drawer
-       it is the only thing saying which page you are on, which is what this
-       element was originally added for. It needs room to be worth showing,
-       though: measured at 375px, with both utility labels present the heading
-       collapsed to 0px, and at 320px the logo and the GitHub icon touched. So
-       the utility links go icon-only here, which buys back ~80px. The icons
-       keep their own `aria-label`, so dropping the text costs no
-       accessible name. */
-    .topbar-heading { padding: 0 var(--space-base); }
-    .topbar-link-label { display: none; }
-    .topbar-link { padding: 0 var(--space-base); }
-    .topbar-right { padding: 0 var(--space-base); }
+    .btn, .cta, .sidebar-link, .topbar-link, .dark-toggle { min-height: 44px; }
+    .topbar-link, .dark-toggle { width: 44px; }
 }
 
 
-/* ── Reduced motion ───────────────────────────────────────────────────────
-   F5DS is silent on this; an addition rather than a deviation. */
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -964,23 +710,9 @@ code {
 }
 
 
-/* ── Forced colours (Windows high contrast) ───────────────────────────────
-   The browser replaces every author colour with the user's palette, and
-   backgrounds and box-shadows go with them — which is how this site marks
-   every "you are here" state: the active-item rail is a background, the
-   selected strategy is a surface plus a shadow, the selected approach tab is
-   a background bar. All three vanished. These rules restate each state in
-   something forced colours keeps: a system-colour fill with
-   forced-color-adjust: none, or a border.
-
-   System colour keywords are used here and nowhere else. They are not design
-   values but the user's own palette, which is the point of this mode. */
+/* ── Forced colours ───────────────────────────────────────────────────────── */
 @media (forced-colors: active) {
-    .sidebar-link.active::before { forced-color-adjust: none; background: Highlight; }
-    /* The lockup's fills read custom properties (see .brand-logo above), so
-       they can follow the palette like text does. Without this its official
-       colours stood untouched on the forced background: the dark theme's white
-       N over a white canvas, and the light theme's #222 wordmark on black. */
+    .site-nav-link[aria-current="page"], .sidebar-link.active .sidebar-link-name { text-decoration-color: Highlight; }
     .topbar-brand .brand-logo,
     :is(html, body).dark-mode .topbar-brand .brand-logo {
         --logo-wordmark: CanvasText;
@@ -991,16 +723,12 @@ code {
 }
 
 
-/* ── Print (top bar, sidebar, banner) ───────────────────────────────────────────────────────── */
+/* ── Print ────────────────────────────────────────────────────────────────── */
 @media print {
     .topbar, .sidebar, .sidebar-backdrop, .event-banner,
     .scroll-to-top, .copy-btn, .skip-link { display: none !important; }
-    .layout { margin-top: 0 !important; }
-    .main { margin-left: 0 !important; }
+    .layout { display: block; }
+    .tool-hero, .page-hero { background: none; color: var(--n600); }
+    .tool-hero-title, .page-hero h1, .tool-hero-desc, .page-hero p { color: var(--n600); }
     body { background: var(--n0); }
-    /* Printing from dark mode is handled at the token layer: tokens.css scopes
-       the whole dark block to `screen`, so print resolves every token to :root.
-       This used to be a hand-written reset here, which covered 13 of the 50
-       overrides and left the rest dark on paper. */
-    :is(html, body).dark-mode { --elev-1: none; --elev-2: none; }
 }

@@ -1,5 +1,12 @@
-/* migration.css — the migration tool (ingress-nginx-migration.html).
+/* migration.css — the migration tools (the three *-migration.html pages).
    =========================================================================
+   DESIGN PREVIEW in the design language of the nginx.org revamp: sections
+   as square white cards in a 1px #D9D9D9 border, section heads semibold
+   and uppercase over a green underline (.ngx-section-header), the rail as
+   the revamp's nav list, and the green button. The component classes below
+   are unchanged; what follows is the earlier header, kept for its account
+   of those classes.
+
    Loaded after tokens.css and shared.css. Top bar and sidebar, buttons, info boxes, code
    blocks and status dots live in shared.css; what remains here is the tool's
    own furniture.
@@ -29,12 +36,12 @@
    docs.nginx.com idiom, keyed off aria-expanded — the same caret language as
    the mapping-table rows: right-pointing when collapsed, rotating down when
    open. */
-.sidebar-link[aria-expanded] { padding-right: var(--space-3hx); }
+.sidebar-link[aria-expanded] { padding-right: var(--space-4x); }
 .sidebar-link[aria-expanded]::after {
     content: '';
     position: absolute;
-    right: var(--space-2x);
-    top: 50%;
+    right: var(--space-base);
+    top: var(--space-2x);
     width: 6px; height: 6px;
     border-right: 2px solid var(--icon);
     border-bottom: 2px solid var(--icon);
@@ -52,11 +59,11 @@
    coloured link. */
 .sidebar-subnav {
     list-style: none;
-    padding-left: var(--space-small);
+    padding-left: var(--space-2x);
     overflow: hidden;
     max-height: 0;
-    border-left: 1px solid var(--border);
-    margin: var(--space-xsmall) 0 var(--space-small) var(--space-3x);
+    border-left: 2px solid var(--border);
+    margin: 0 0 var(--space-base);
     transition: max-height var(--dur-reveal) var(--ease-enter);
 }
 /* A collapsed list was clipped to zero height but stayed in the Tab order and
@@ -72,62 +79,63 @@
 }
 .sidebar-subnav.open { max-height: 500px; }
 .sidebar-subnav .sidebar-link {
-    padding: var(--space-small) var(--space-base);
-    font-size: var(--fs-caption);
-    line-height: var(--lh-caption);
+    padding: var(--space-small) 0;
+    font-weight: 400;
     color: var(--text-secondary);
 }
-.sidebar-subnav .sidebar-link::before { display: none; }
 .sidebar-subnav .sidebar-link-name {
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
-    color: var(--text-secondary);
 }
-.sidebar-subnav .sidebar-link.active { background: var(--surface-sunken); }
-.sidebar-subnav .sidebar-link.active .sidebar-link-name { color: var(--text); font-weight: 500; }
+.sidebar-subnav .sidebar-link.active { color: var(--text); font-weight: var(--weight-semibold); }
+.sidebar-subnav .sidebar-link:hover .sidebar-link-name,
+.sidebar-subnav .sidebar-link.active .sidebar-link-name { text-decoration-thickness: 2px; text-underline-offset: 4px; }
+/* An open page's own link is marked by its open subnav. */
+.sidebar-link[aria-expanded="true"] .sidebar-link-name { text-decoration-line: none; }
 /* Inactive tool pages carry the hidden attribute (markup +
    migration-core.js), so find-in-page searches only the active one. */
 
 
 /* ── Main content ─────────────────────────────────────────────────────────── */
 
-main { padding: 0; }
-.main-inner { max-width: 1300px; padding: var(--space-5x) var(--space-6x) var(--space-8x); }
+.main-inner { padding: 0; }
 
 /* Border-only at rest. These were cards on a shadow; the console reserves
    shadow for surfaces that genuinely float. */
 .main-inner section {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: var(--space-3x);
-    margin-bottom: var(--space-3x);
+    padding: var(--space-4x);
+    margin-bottom: var(--space-4x);
     transition: background var(--dur-reveal) linear;
 }
 
 /* Content-area link colour, scoped so it cannot override the top bar or sidebar. The
    components that must differ (.install-box a, .info-box.warning a) are
    declared later at the same specificity, so source order lets them win. */
-.main-inner a:link { color: var(--blue-text); }
-.main-inner a:visited { color: var(--blue-text); }
-.main-inner a:hover { color: var(--blue-deep); }
-.main li::marker { color: var(--green-text); font-weight: 500; }
+.main-inner a:link { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.main-inner a:visited { color: var(--link-visited); }
+.main-inner a:hover { color: var(--green-text); }
+.main li::marker { color: var(--green-text); font-weight: var(--weight-semibold); }
 
+/* .ngx-section-header, scaled down inside a card: semibold, uppercase, a
+   green underline 8px below the text. */
 h2 {
-    font-family: var(--font-display);
-    font-size: var(--fs-h2);
-    line-height: var(--lh-h2);
-    font-weight: 700;
-    color: var(--text);
-    padding-bottom: var(--space-base);
-    margin-bottom: var(--space-3x);
-    border-bottom: 1px solid var(--border);
-}
-h3 {
-    font-family: var(--font-display);
+    width: fit-content;
     font-size: var(--fs-h3);
     line-height: var(--lh-h3);
-    font-weight: 700;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-underline-offset: 8px;
+    color: var(--text);
+    margin-bottom: var(--space-3x);
+}
+h3 {
+    font-size: var(--fs-body-lg);
+    line-height: var(--lh-body-lg);
+    font-weight: var(--weight-semibold);
     color: var(--text);
     margin: var(--space-3hx) 0 var(--space-2x);
 }
@@ -143,12 +151,8 @@ h2[id], h3[id], section[id] { scroll-margin-top: var(--space-4x); }
    heading's own box (the rule, the bottom margin), so the layout is the same
    one the inline anchor gave. */
 .heading-row { display: flex; align-items: center; gap: var(--space-base); }
-.heading-row > h2, .heading-row > h3 { margin: 0; padding: 0; border: 0; }
-.heading-row-h2 {
-    padding-bottom: var(--space-base);
-    margin-bottom: var(--space-3x);
-    border-bottom: 1px solid var(--border);
-}
+.heading-row > h2, .heading-row > h3 { margin: 0; padding: 0; }
+.heading-row-h2 { margin-bottom: var(--space-3x); }
 .heading-row-h3 { margin: var(--space-3hx) 0 var(--space-2x); }
 .heading-anchor {
     display: inline-flex;
@@ -160,7 +164,8 @@ h2[id], h3[id], section[id] { scroll-margin-top: var(--space-4x); }
 }
 .heading-row:hover .heading-anchor, .heading-anchor:focus-visible { opacity: 1; }
 
-.doc-list { padding-left: var(--space-5x); }
+.doc-list { margin: var(--space-base) 0 var(--space-2x); padding-left: var(--space-5x); }
+.doc-list li + li { margin-top: var(--space-small); }
 /* A paragraph that follows a list needs the gap the reset took away. */
 .doc-list + p { margin-top: var(--space-3x); }
 
@@ -171,7 +176,7 @@ h2[id], h3[id], section[id] { scroll-margin-top: var(--space-4x); }
 
    The mapping tables are fixed 50/50: the two columns are a before-and-after
    pair, so an uneven split would imply one side matters more. */
-.table-wrapper { overflow-x: auto; margin: var(--space-2hx) 0; }
+.table-wrapper { overflow-x: auto; margin: var(--space-2hx) 0; border: 1px solid var(--border); }
 table { width: 100%; border-collapse: collapse; font-size: var(--fs-body); line-height: var(--lh-body); }
 .mapping-table { table-layout: fixed; }
 .mapping-table th, .mapping-table td { width: 50%; }
@@ -197,8 +202,9 @@ th, td {
 th {
     font-size: var(--fs-caption);
     line-height: var(--lh-caption);
-    font-weight: 700;
-    color: var(--text-secondary);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    color: var(--text);
     background: var(--surface-sunken);
 }
 tr:not(.expandable):not(.example-row):hover { background-color: var(--surface-sunken); }
@@ -513,8 +519,8 @@ pre code { background: none; border: 0; padding: 0; color: inherit; }
     padding: var(--space-2hx);
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    border-left: 3px solid var(--blue);
-    border-radius: var(--radius);
+    border-left: 4px solid var(--green);
+    border-radius: var(--radius-small);
     color: var(--code-fg);
     color-scheme: dark;
 }
@@ -523,10 +529,9 @@ pre code { background: none; border: 0; padding: 0; color: inherit; }
     align-items: center;
     gap: var(--space-base);
     margin: 0 0 var(--space-base);
-    font-family: var(--font-display);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
-    font-weight: 500;
+    font-weight: var(--weight-semibold);
     color: var(--n0);
 }
 .install-box pre {
@@ -651,22 +656,18 @@ pre code { background: none; border: 0; padding: 0; color: inherit; }
 .feature-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2x); margin: var(--space-2hx) 0; }
 .feature-card {
     flex: 0 0 calc(33.333% - var(--space-2x));
-    padding: var(--space-2hx);
+    padding: var(--space-3x);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: border-color var(--dur-colour) linear, box-shadow var(--dur-elev) linear;
 }
-.feature-card:hover { border-color: var(--border-control); box-shadow: var(--elev-1); }
 .feature-card h3 {
     display: flex;
     align-items: center;
     gap: var(--space-base);
     margin: 0 0 var(--space-2x);
-    font-family: var(--font-display);
     font-size: var(--fs-body-lg);
     line-height: var(--lh-body-lg);
-    font-weight: 500;
+    font-weight: var(--weight-semibold);
     color: var(--text);
 }
 .feature-card .description {
@@ -745,8 +746,8 @@ pre code { background: none; border: 0; padding: 0; color: inherit; }
    other hover transforms on the site were removed. */
 .checklist li:hover::before { transform: scale(1.15); }
 .checklist li.checked::before {
-    background: var(--green-text) var(--icon-check) center / 0.75rem no-repeat;
-    border-color: var(--green-text);
+    background: var(--button-bg) var(--icon-check) center / 0.75rem no-repeat;
+    border-color: var(--button-bg);
 }
 .checklist li.checked span { color: var(--text-secondary); text-decoration: line-through; }
 
@@ -945,14 +946,14 @@ button.analyzer-pill { font-family: var(--font); }
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: var(--green-text);
-    color: var(--n0);
+    background: var(--button-bg);
+    color: var(--button-fg);
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     font-weight: 700;
     box-shadow: 0 0 0 4px var(--surface);
 }
-.analyzer-step-number.warning { background: var(--amber); color: var(--n700); }
+.analyzer-step-number.warning { background: var(--amber); color: var(--n600); }
 .analyzer-step-title {
     margin: 0;
     font-family: var(--font-display);
@@ -1139,7 +1140,7 @@ button.analyzer-pill { font-family: var(--font); }
 .analyzer-next-steps ul { list-style: none; padding: 0; margin: 0; }
 .analyzer-next-steps li { padding: var(--space-small) 0; font-size: var(--fs-body); line-height: var(--lh-body); }
 .analyzer-next-steps li::before { content: '\2192'; margin-right: var(--space-base); color: var(--green-text); font-weight: 500; }
-.analyzer-next-steps a { color: var(--blue-text); text-decoration: none; font-weight: 500; }
+.analyzer-next-steps a { color: var(--green-text); text-decoration: none; font-weight: 700; }
 .analyzer-next-steps a:hover { text-decoration: underline; }
 
 .analyzer-complexity {
@@ -1229,11 +1230,11 @@ button.analyzer-pill { font-family: var(--font); }
     color: var(--text-secondary);
 }
 
-.analyzer-copy-all { margin-top: var(--space-2hx); background: var(--green-text); border-color: var(--green-text); color: var(--n0); }
+.analyzer-copy-all { margin-top: var(--space-2hx); background: var(--button-bg); border-color: var(--button-bg); color: var(--button-fg); font-weight: var(--weight-semibold); }
 /* The export row lays the two buttons out itself, so the standalone
    margin-top above would double the gap. Was an inline style="margin-top:0". */
 .analyzer-export-actions .analyzer-copy-all { margin-top: 0; }
-.analyzer-copy-all:hover, .analyzer-copy-all.copied { background: var(--green-deep); border-color: var(--green-deep); }
+.analyzer-copy-all:hover, .analyzer-copy-all.copied { background: var(--button-hover); border-color: var(--button-hover); }
 .analyzer-copy-all svg, .analyzer-download-btn svg { flex-shrink: 0; }
 .analyzer-download-btn { background: var(--surface); border-color: var(--border-control); color: var(--text); }
 .analyzer-download-btn:hover { background: var(--surface-sunken); }
@@ -1407,16 +1408,16 @@ button.analyzer-pill { font-family: var(--font); }
     display: none;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: var(--green-text);
-    color: var(--n0);
+    border-radius: var(--radius-small);
+    background: var(--button-bg);
+    color: var(--button-fg);
     border: none;
     cursor: pointer;
     box-shadow: var(--elev-1);
     transition: background var(--dur-colour) linear, transform var(--dur-colour) linear;
 }
 .scroll-to-top.visible { display: flex; }
-.scroll-to-top:hover { background: var(--green-deep); transform: scale(1.1); }
+.scroll-to-top:hover { background: var(--button-hover); }
 
 
 /* ── Forced colours ───────────────────────────────────────────────────────
@@ -1446,8 +1447,8 @@ button.analyzer-pill { font-family: var(--font); }
    what remains is only the handful of cases where a light-theme choice does not
    translate. Content link colour is page-scoped here for the same reason it is
    in index.css: declaring it globally would override the top bar and sidebar. */
-:is(html, body).dark-mode .main-inner a:link { color: var(--blue-text); }
-:is(html, body).dark-mode .main-inner a:visited { color: var(--blue-text); }
+:is(html, body).dark-mode .main-inner a:link { color: var(--link); }
+:is(html, body).dark-mode .main-inner a:visited { color: var(--link-visited); }
 /* The chip needs no dark override: --code-chip-bg is N400 at 22%, so it lifts
    the dark surface the same way it tints the light one, and `color: inherit`
    follows the theme's own text colour. The rule that used to live here set a
@@ -1456,26 +1457,19 @@ button.analyzer-pill { font-family: var(--font); }
 :is(html, body).dark-mode .install-box a:link,
 :is(html, body).dark-mode .install-box a:visited { color: var(--n400); }
 :is(html, body).dark-mode .analyzer-comparison-badge { background: var(--surface); }
-:is(html, body).dark-mode .analyzer-step-number { color: var(--n700); }
-:is(html, body).dark-mode .analyzer-copy-all { color: var(--n700); }
+:is(html, body).dark-mode .analyzer-step-number.warning { color: var(--n700); }
 /* Links on a sentiment tint. Dark --blue-text over the tints measures 4.26:1
    (warning) to 4.38:1 (note) on a section, under the bar; --blue-deep is
    5.37–5.52:1. Covers the three info-box tints and the "See reference guide"
    link the analyzer puts in its warning cards. */
-:is(html, body).dark-mode .main-inner .info-box a:link,
-:is(html, body).dark-mode .main-inner .info-box a:visited { color: var(--blue-deep); }
-:is(html, body).dark-mode .checklist li.checked::before { background-color: var(--green); border-color: var(--green); }
-:is(html, body).dark-mode .scroll-to-top { color: var(--n700); }
 
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-    .main-inner { padding: var(--space-3hx) var(--space-3x) var(--space-5x); }
     /* Must match the base rule's `.main-inner section` specificity or it never applies. */
-    .main-inner section { padding: var(--space-2hx); }
-    h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); }
-    h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); }
+    .main-inner section { padding: var(--space-3x); }
+    h2 { font-size: var(--fs-body-lg); line-height: var(--lh-body-lg); }
     .comparison, .analyzer-comparison { grid-template-columns: 1fr; }
     /* table-layout stays fixed 50/50 at tablet too: codes wrap, so columns stay
        equal across all tables instead of auto-sizing per-table by content. */
@@ -1488,11 +1482,10 @@ button.analyzer-pill { font-family: var(--font); }
 }
 
 @media (max-width: 600px) {
-    .main-inner { padding: var(--space-2x) var(--space-2x) var(--space-4x); }
     .main-inner section { padding: var(--space-2x); margin-bottom: var(--space-2hx); }
-    h2 { font-size: var(--fs-h3); line-height: var(--lh-h3); margin-bottom: var(--space-2x); }
+    h2 { margin-bottom: var(--space-2x); }
     .heading-row-h2 { margin-bottom: var(--space-2x); }
-    h3 { font-size: var(--fs-body-lg); line-height: var(--lh-body-lg); }
+    h3 { font-size: var(--fs-body); line-height: var(--lh-body); }
 
     .analyzer-actions { flex-direction: column; }
     .analyzer-actions .btn { width: 100%; }
@@ -1501,6 +1494,10 @@ button.analyzer-pill { font-family: var(--font); }
     .analyzer-step-header { flex-wrap: wrap; }
     .analyzer-step-count { margin-left: var(--space-5x); }
     .strategy-toggle { flex-wrap: wrap; }
+    /* At the revamp's 14px the two labels need 345px; they share the row
+       and wrap instead of running past a 375px screen. */
+    .strategy-toggle-options { flex: 1 1 100%; flex-shrink: 1; min-width: 0; }
+    .strategy-option { flex: 1 1 0; min-width: 0; white-space: normal; }
     .strategy-desc { display: none; }
     .controls input[type="search"] { min-width: 100%; max-width: 100%; }
     .sample-dropdown-menu { min-width: 260px; left: auto; right: 0; }

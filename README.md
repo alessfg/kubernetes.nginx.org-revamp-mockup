@@ -1,3 +1,5 @@
+> **Design preview, not the production site.** A copy of [nginx/kubernetes.nginx.org](https://github.com/nginx/kubernetes.nginx.org) restyled in the design language of nginxinc/nginx-org-revamp, to compare against the live site at https://kubernetes.nginx.org. It is not maintained and is not indexed.
+
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/nginx/kubernetes.nginx.org/badge)](https://securityscorecards.dev/viewer/?uri=github.com/nginx/kubernetes.nginx.org)

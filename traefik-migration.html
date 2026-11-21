@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0F1E57" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#161B22" media="(prefers-color-scheme: dark)">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Migrate from Traefik Proxy to the NGINX Ingress Controller: config analyzer, middleware and annotation mappings for all 24 HTTP middlewares, and CRD migration examples.">
     <meta name="keywords" content="NGINX, Ingress, Kubernetes, Traefik, Migration, Middleware, IngressRoute, CRD, VirtualServer, Policy">
@@ -83,6 +83,14 @@
                 <span class="mobile-breadcrumb" id="mobileBreadcrumb">Getting started</span>
             </div>
         </div>
+        <ul class="site-nav" aria-label="Site">
+            <li><a class="site-nav-link" href="index.html#home" data-nav="home">Home</a></li>
+            <li><a class="site-nav-link" href="index.html#nginx-ingress-controller" data-nav="nic">Ingress Controller</a></li>
+            <li><a class="site-nav-link" href="index.html#nginx-gateway-fabric" data-nav="ngf">Gateway Fabric</a></li>
+            <li><a class="site-nav-link" href="ingress-nginx-migration.html" data-nav="ingress-nginx">Ingress-NGINX</a></li>
+            <li><a class="site-nav-link" href="haproxy-migration.html" data-nav="haproxy">HAProxy</a></li>
+            <li><a class="site-nav-link" href="traefik-migration.html" data-nav="traefik" aria-current="page">Traefik</a></li>
+        </ul>
         <div class="topbar-right">
             <a class="topbar-link hide-mobile" href="https://nginx.org" target="_blank" rel="noopener" aria-label="Visit nginx.org">
                 <svg aria-hidden="true" class="nginx-glyph" viewBox="0 0 53 60"><g transform="translate(-7.198 -0.359)"><path fill="#009639" d="M7.606,45.181a3.019,3.019,0,0,0,1.134,1.126L31.942,59.702a3.044,3.044,0,0,0,3.084,0L58.229,46.306a3.043,3.043,0,0,0,1.541-2.67V16.846a3.044,3.044,0,0,0-1.542-2.67L35.025,0.779a3.04,3.04,0,0,0-3.082,0L8.741,14.175a3.042,3.042,0,0,0-1.543,2.67V43.637a3.025,3.025,0,0,0,.407,1.544"/><path fill="#fff" d="M26.055,40.439a2.984,2.984,0,0,1-5.968,0l.003-20.483a3.111,3.111,0,0,1,3.388-2.899,5.306,5.306,0,0,1,4.067,1.819l.902,1.079L40.914,34.874V20.041a2.984,2.984,0,1,1,5.968,0l-.004,20.481a3.111,3.111,0,0,1-3.388,2.899,5.303,5.303,0,0,1-4.067-1.819L26.054,25.606V40.44Z"/></g></svg>
@@ -99,12 +107,30 @@
         </div>
     </nav>
 
+    <header class="tool-hero">
+        <div class="tool-hero-inner">
+            <p class="tool-hero-eyebrow">Migration tool &middot; Beta</p>
+            <h1 class="tool-hero-title">Traefik to NGINX Ingress Migration Tool (Beta)</h1>
+            <p class="tool-hero-desc">Migrate from Traefik Proxy to NGINX Ingress Controller: a config analyzer, middleware and annotation mappings for all 24 HTTP middlewares, and CRD migration examples.</p>
+        </div>
+    </header>
+
     <div class="layout">
         <!-- ── Sidebar Backdrop ── -->
         <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
         <!-- ── Sidebar ── -->
         <aside class="sidebar" id="sidebar" aria-label="Section navigation">
+            <nav class="drawer-site-nav" aria-label="Site">
+                <ul class="sidebar-nav">
+                    <li><a class="sidebar-link drawer-site-link" href="index.html#home" data-nav="home">Home</a></li>
+                    <li><a class="sidebar-link drawer-site-link" href="index.html#nginx-ingress-controller" data-nav="nic">Ingress Controller</a></li>
+                    <li><a class="sidebar-link drawer-site-link" href="index.html#nginx-gateway-fabric" data-nav="ngf">Gateway Fabric</a></li>
+                    <li><a class="sidebar-link drawer-site-link" href="ingress-nginx-migration.html" data-nav="ingress-nginx">Ingress-NGINX</a></li>
+                    <li><a class="sidebar-link drawer-site-link" href="haproxy-migration.html" data-nav="haproxy">HAProxy</a></li>
+                    <li><a class="sidebar-link drawer-site-link" href="traefik-migration.html" data-nav="traefik" aria-current="page">Traefik</a></li>
+                </ul>
+            </nav>
             <section class="sidebar-section" aria-labelledby="sidebar-sections-label">
                 <div class="sidebar-label" id="sidebar-sections-label">Sections</div>
                 <ul class="sidebar-nav">
@@ -174,16 +200,10 @@
                     Community forum
                 </a>
             </div>
-            <div class="sidebar-copyright">
-                &copy; <span id="copyright-year">2026</span> F5, Inc. All rights reserved.
-                <div class="sidebar-trademark">NGINX is a registered trademark of F5, Inc.</div>
-                <div class="sidebar-tagline">Created with AI. Maintained by humans.</div>
-            </div>
         </aside>
 
         <!-- ── Main Content ── -->
         <main class="main" id="main-content" role="main" aria-label="Migration tool content">
-        <h1 class="sr-only">Traefik to NGINX Ingress Migration Tool (Beta)</h1>
         <div class="main-inner">
 
         <div class="tool-page active" id="page-getting-started">
@@ -7157,6 +7177,16 @@ experimental:
         </div><!-- /.main-inner -->
         </main>
     </div><!-- /.layout -->
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <p class="site-footer-trademark">&copy;<span id="copyright-year">2026</span> F5, Inc. All rights reserved. NGINX is a registered trademark of F5, Inc.</p>
+            <nav class="site-footer-links" aria-label="Legal">
+                <a href="https://www.f5.com/company/policies/trademarks" target="_blank" rel="noopener">Trademarks</a>
+                <a href="https://www.f5.com/company/policies" target="_blank" rel="noopener">Policies</a>
+                <a href="https://www.f5.com/company/policies/privacy-notice" target="_blank" rel="noopener">Privacy</a>
+            </nav>
+        </div>
+    </footer>
 
 
 

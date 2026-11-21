@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://kubernetes.nginx.org/sitemap.xml
+Disallow: /

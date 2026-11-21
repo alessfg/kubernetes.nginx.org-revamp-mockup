@@ -55,7 +55,7 @@ EXEMPT = [
      'inline code sizes relative to its context, not off the scale'),
     ('border-radius: 50%',
      'a status dot and a spinner cannot take a 4px corner'),
-    ("isDark ? '#0F1E57' : '#FFFFFF'",
+    ("isDark ? '#161B22' : '#FFFFFF'",
      'a <meta> content attribute cannot hold a var() — asserted against '
      '--surface instead, below'),
     ('-duration: 0.01ms',
